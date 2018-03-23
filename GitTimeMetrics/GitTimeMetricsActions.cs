@@ -3,6 +3,7 @@ using System.Diagnostics;
 using System.IO;
 using EnvDTE;
 using EnvDTE80;
+using Process = System.Diagnostics.Process;
 
 namespace GitTimeMetrics
 {
@@ -14,9 +15,23 @@ namespace GitTimeMetrics
         public string GitTimeMetricsExecutablePath { get; set; }
         public DTE2 Dte;
         public static GitTimeMetricsActions Instance = new GitTimeMetricsActions();
+
+        public class TextUpdatedEventArgs : EventArgs
+        {
+            public string Text { get; set; }
+        }
+
+        public EventHandler<TextUpdatedEventArgs> TextUpdated;
         private GitTimeMetricsActions()
         {
 
+        }
+
+        protected void OnTextUpdated(string text)
+        {
+            EventHandler<TextUpdatedEventArgs> handles = TextUpdated;
+            if (TextUpdated != null)
+                TextUpdated(this, new TextUpdatedEventArgs {Text = text});
         }
 
         protected bool IsValidPath()
@@ -41,18 +56,32 @@ namespace GitTimeMetrics
                 return;
             if (fileName == CurrentFile && (DateTime.Now - LastTimeStamp).TotalSeconds < UpdateInterval)
                 return;
-            string args = $"record \"{fileName}\"";
+            string args = $"record --status \"{fileName}\"";
             ProcessStartInfo processStartInfo = new ProcessStartInfo
             {
                 UseShellExecute = false,
                 FileName = $"\"{GitTimeMetricsExecutablePath}\"",
                 Arguments = args,
-                WindowStyle = ProcessWindowStyle.Hidden
+                CreateNoWindow=true,
+                WindowStyle = ProcessWindowStyle.Hidden,
+                RedirectStandardOutput=true,
             };
-            System.Diagnostics.Process.Start(processStartInfo);
+            Process recordProcess = new Process
+            {
+                StartInfo=processStartInfo,
+            };
+            recordProcess.OutputDataReceived += RecordProcess_OutputDataReceived;
             CurrentFile = fileName;
             LastTimeStamp = DateTime.Now;
+            recordProcess.Start();
+            string output = recordProcess.StandardOutput.ReadToEnd();
+            OnTextUpdated($"Git Time Metric: {output}");
+            recordProcess.WaitForExit();
         }
 
+        private void RecordProcess_OutputDataReceived(object sender, DataReceivedEventArgs e)
+        {
+            string outputRecevied = e.Data;
+        }
     }
 }

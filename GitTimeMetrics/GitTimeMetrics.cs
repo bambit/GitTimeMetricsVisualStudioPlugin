@@ -49,6 +49,7 @@ namespace GitTimeMetrics
         private readonly Lazy<GitTimeMetricsOptions> options;
         private Lazy<DocumentEvents> documentEvents;
 
+        private Lazy<IVsStatusbar> StatusBar;
         /// <summary>
         /// GitTimeMetrics GUID string.
         /// </summary>
@@ -68,10 +69,20 @@ namespace GitTimeMetrics
             events = new Lazy<EnvDTE.Events>(() => dte.Value.Events);
             textEditorEvents = new Lazy<EnvDTE.TextEditorEvents>(() => events.Value.TextEditorEvents);
             documentEvents = new Lazy<DocumentEvents>(() => events.Value.DocumentEvents);
+            StatusBar = new Lazy<IVsStatusbar>(() => GetService(typeof(SVsStatusbar)) as IVsStatusbar);
         }
 
         #region Package Members
 
+        private void SetStatusText(string text)
+        {
+            int frozen;
+            StatusBar.Value.IsFrozen(out frozen);
+            if (frozen == 0)
+            {
+                StatusBar.Value.SetText(text);
+            }
+        }
         /// <summary>
         /// Initialization of the package; this method is called right after the package is sited, so this is the place
         /// where you can put all the initialization code that rely on services provided by VisualStudio.
@@ -85,6 +96,7 @@ namespace GitTimeMetrics
             documentEvents.Value.DocumentOpened += DocumentSavedEvents;
             GitTimeMetricsActions.Instance.GitTimeMetricsExecutablePath = options.Value.GitTimeMetricsExecutablePath;
             GitTimeMetricsActions.Instance.Dte = dte.Value;
+            GitTimeMetricsActions.Instance.TextUpdated += (sender, args) => { SetStatusText(args.Text); };
         }
 
         private void DocumentSavedEvents(Document document)

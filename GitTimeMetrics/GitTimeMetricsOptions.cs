@@ -12,8 +12,7 @@ namespace GitTimeMetrics
     public class GitTimeMetricsOptions : DialogPage
     {
         private string DefaultGitTimeMetricsExecutablePath = @"C:\Data\Portable Apps\gitplugins\";
-
-
+        
         [Category("GitTimeMetrics Information")]
         [DisplayName("GitTimeMetrics Executable Location")]
         [Description("The location of the gtm.exe file.")]
