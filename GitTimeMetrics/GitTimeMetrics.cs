@@ -37,6 +37,7 @@ namespace GitTimeMetrics
     [ProvideAutoLoad(UIContextGuids80.SolutionExists)]
     [SuppressMessage("StyleCop.CSharp.DocumentationRules", "SA1650:ElementDocumentationMustBeSpelledCorrectly", Justification = "pkgdef, VS and vsixmanifest are valid VS terms")]
     [ProvideMenuResource("Menus.ctmenu", 1)]
+    [ProvideOptionPage(typeof(GitTimeMetricsOptions), "GitTimeMetrics Information", "General", 0, 0, true, new[] { "GitTimeMetrics", })]
     public sealed class GitTimeMetrics : Package
     {
 
@@ -91,7 +92,6 @@ namespace GitTimeMetrics
 
             GitTimeMetricsActions.Instance.RecordEntry(document.FullName);
         }
-
 
         private void LineChangedEvent(TextPoint startpoint, TextPoint endpoint, int hint)
         {

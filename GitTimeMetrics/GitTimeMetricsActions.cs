@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using System.IO;
 using EnvDTE;
 using EnvDTE80;
@@ -41,7 +42,14 @@ namespace GitTimeMetrics
             if (fileName == CurrentFile && (DateTime.Now - LastTimeStamp).TotalSeconds < UpdateInterval)
                 return;
             string args = $"record \"{fileName}\"";
-            System.Diagnostics.Process.Start($"\"{GitTimeMetricsExecutablePath}\"", args);
+            ProcessStartInfo processStartInfo = new ProcessStartInfo
+            {
+                UseShellExecute = false,
+                FileName = $"\"{GitTimeMetricsExecutablePath}\"",
+                Arguments = args,
+                WindowStyle = ProcessWindowStyle.Hidden
+            };
+            System.Diagnostics.Process.Start(processStartInfo);
             CurrentFile = fileName;
             LastTimeStamp = DateTime.Now;
         }
