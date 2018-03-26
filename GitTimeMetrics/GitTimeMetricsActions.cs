@@ -46,6 +46,18 @@ namespace GitTimeMetrics
             RecordEntry(doc.FullName);
         }
 
+        public void RecordProjectEntry(string projectName)
+        {
+            string solutionName = Dte.Solution.FullName;
+            if (string.IsNullOrEmpty(solutionName))
+                return ;
+            string solutionPath = Path.GetDirectoryName(solutionName);
+            if (string.IsNullOrEmpty(solutionPath))
+                return ;
+            string path = Path.Combine(solutionPath, projectName);
+            RecordEntry(path);
+        }
+
         public void RecordEntry(string fileName)
         {
             if (!IsValidPath())

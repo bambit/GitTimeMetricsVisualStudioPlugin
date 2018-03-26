@@ -6,6 +6,7 @@
 
 using System;
 using System.Diagnostics.CodeAnalysis;
+using System.IO;
 using System.Runtime.InteropServices;
 using EnvDTE;
 using EnvDTE80;
@@ -50,6 +51,8 @@ namespace GitTimeMetrics
         private Lazy<DocumentEvents> documentEvents;
 
         private Lazy<IVsStatusbar> StatusBar;
+        private Lazy<BuildEvents> buildEvents;
+
         /// <summary>
         /// GitTimeMetrics GUID string.
         /// </summary>
@@ -69,6 +72,7 @@ namespace GitTimeMetrics
             events = new Lazy<EnvDTE.Events>(() => dte.Value.Events);
             textEditorEvents = new Lazy<EnvDTE.TextEditorEvents>(() => events.Value.TextEditorEvents);
             documentEvents = new Lazy<DocumentEvents>(() => events.Value.DocumentEvents);
+            buildEvents = new Lazy<BuildEvents>(() => events.Value.BuildEvents);
             StatusBar = new Lazy<IVsStatusbar>(() => GetService(typeof(SVsStatusbar)) as IVsStatusbar);
         }
 
@@ -94,9 +98,23 @@ namespace GitTimeMetrics
             textEditorEvents.Value.LineChanged += LineChangedEvent;
             documentEvents.Value.DocumentSaved += DocumentSavedEvents;
             documentEvents.Value.DocumentOpened += DocumentSavedEvents;
+            buildEvents.Value.OnBuildProjConfigBegin += ProjectBuildBegin;
+            buildEvents.Value.OnBuildProjConfigDone += ProjectBuildDone;
             GitTimeMetricsActions.Instance.GitTimeMetricsExecutablePath = options.Value.GitTimeMetricsExecutablePath;
             GitTimeMetricsActions.Instance.Dte = dte.Value;
             GitTimeMetricsActions.Instance.TextUpdated += (sender, args) => { SetStatusText(args.Text); };
+        }
+
+        
+
+        private void ProjectBuildDone(string project, string projectconfig, string platform, string solutionconfig, bool success)
+        {
+            GitTimeMetricsActions.Instance.RecordProjectEntry(project);
+        }
+
+        private void ProjectBuildBegin(string project, string projectconfig, string platform, string solutionconfig)
+        {
+            GitTimeMetricsActions.Instance.RecordProjectEntry(project);
         }
 
         private void DocumentSavedEvents(Document document)

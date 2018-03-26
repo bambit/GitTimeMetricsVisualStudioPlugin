@@ -1,9 +1,10 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <PackageManifest Version="2.0.0" xmlns="http://schemas.microsoft.com/developer/vsx-schema/2011" xmlns:d="http://schemas.microsoft.com/developer/vsx-schema-design/2011">
   <Metadata>
-    <Identity Id="GitTimeMetrics.Company.0e5be241-ba67-4cb1-b5b8-3be3fe88bbfd" Version="1.0" Language="en-US" Publisher="Company" />
-    <DisplayName>GitTimeMetrics</DisplayName>
-    <Description>Empty VSIX Project.</Description>
+    <Identity Id="GitTimeMetrics.bambittechnologies.0e5be241-ba67-4cb1-b5b8-3be3fe88bbfd" Version="0.1" Language="en-US" Publisher="Law Metzler" />
+    <DisplayName>Git Time Metrics </DisplayName>
+    <Description xml:space="preserve">Plugin to integrate with the Git Time Metric (https://github.com/git-time-metric). Records entries during editing of files and building.</Description >
+    <License>LICENSE</License>
   </Metadata>
   <Installation>
     <InstallationTarget Id="Microsoft.VisualStudio.Community" Version="[14.0]" />
